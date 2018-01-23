@@ -26,7 +26,7 @@ unsigned long t0;
 
 void setup()  
 {
-  Serial.begin(115200);
+  Serial.begin(9600);
   Serial.println("Adafruit GPS library basic test!");
 
   if(!bno.begin())
@@ -48,17 +48,18 @@ void setup()
   
   useInterrupt(true);
   
-  delay(5000);
+  delay(1000);
 
   t0 = millis();
   
 }
 
+
 SIGNAL(TIMER0_COMPA_vect) {
   char c = GPS.read();
   
-  if (GPSECHO)
-    if (c) UDR0 = c;
+ /* if (GPSECHO)
+    if (c) UDR0 = c;*/
 }
 
 void useInterrupt(boolean v) {
@@ -74,18 +75,37 @@ void useInterrupt(boolean v) {
 
 void loop()
 {  
-  /*if(millis()>(t0+2000)) {
+  /*
+  String msg = "";
+  
+  while(GPS.read()!='$') {}
+  Serial.println("un $ sauvage est apparu");
+  Serial.print("->"); Serial.println(GPS.read(),DEC);
+  if(GPS.read()=='G' && GPS.read()=='P' && GPS.read()=='G' && GPS.read()=='G' && GPS.read()=='A'){
+    Serial.println("ch'uis dedans");
+    char c = GPS.read();
+    while(c != '*'){
+      Serial.println(c);
+      msg += c;
+      c = GPS.read();
+    }
+  }
+  Serial.println(msg);
+*/
+
+  /*,160740.000,5036.4332,N,00308.1575,E,1,6,2.48,-46.6,M,47.2,M,,*/
+
+  if(millis()>(t0+2000)) {
     if(GPS.newNMEAreceived()){
-      Serial.println(GPS.lastNMEA());
-      /*Serial.print("longitude : ");
+      GPS.parse(GPS.lastNMEA());
       Serial.println(GPS.longitude);
-      Serial.print("latitude : ");
       Serial.println(GPS.latitude);
     }
   
     t0 = millis();
   }
-  */
+  
+  
   useInterrupt(false);
   
   imu::Vector<3> lacc = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
@@ -95,5 +115,4 @@ void loop()
   Serial.println(force);
   
   useInterrupt(true);
-  
 }
